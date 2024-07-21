@@ -43,6 +43,23 @@ export default class ProxyScraper {
 		)
 	}
 
+	_aggregateProxy(proxy, source) {
+		const aproxy = {
+			source,
+			url() {
+				return `${this.type}://${this.ip}:${this.port}`
+			},
+			...proxy
+		}
+
+		return VALID_TYPES.includes(aproxy.type)
+			? aproxy
+			: TYPES.map(type => ({
+					...aproxy,
+					type
+				}))
+	}
+
 }
 
 ProxyScraper.scrapers = scrapers
