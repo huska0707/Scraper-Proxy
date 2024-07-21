@@ -60,6 +60,11 @@ export default class ProxyScraper {
 				}))
 	}
 
+	stop() {
+		for (const worker of this._workers) {
+			worker.get(worker => worker.kill())
+		}
+	}
 }
 
 ProxyScraper.scrapers = scrapers
