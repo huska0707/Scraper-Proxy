@@ -44,3 +44,32 @@ export default function scrap() {
 		return chain.then(datas => datas.reduce((prev, next) => prev.concat(next)))
 	})
 }
+
+
+function getAccount(fetch) {
+	return loadAccountFromCache()
+		.then(({ email, password }) => {
+			log(
+				'Loaded account with email %s and password %s from .gatherproxy.account',
+				email,
+				password
+			)
+			return login(fetch, email, password)
+		})
+		.catch(() => {
+			log('Invalid account in .gatherproxy.account, creating new one')
+			return createAccount(fetch)
+				.then(({ email, password }) => {
+					log(
+						'Storing account with email %s and password %s in .gatherproxy.account',
+						email,
+						password
+					)
+					return storeAccountToCache(email, password).catch(() => ({
+						email,
+						password
+					}))
+				})
+				.then(({ email, password }) => login(fetch, email, password))
+		})
+}
