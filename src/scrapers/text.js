@@ -8,7 +8,6 @@ export default function createTextScaper(url, aggregator) {
     }
 }
 
-
 export function extractProxies(text, aggregator = function() {}) {
 	return text
 		.split('\n')
@@ -26,4 +25,12 @@ export function extractProxies(text, aggregator = function() {}) {
 			}
 		})
 		.filter(proxy => proxy !== undefined)
+}
+
+export function validIp(ip) {
+    return true
+}
+
+export function validPort(port) {
+    return port > 0 && port <= 65535
 }
