@@ -155,6 +155,19 @@ function solveCaptcha(raw) {
 	return result
 }
 
+
+function downloadProxyList(fetch, anonimity, id) {
+	log('Downloading proxy with anonimity %s using id %s', anonimity, id)
+	const form = new FormData()
+	form.append('ID', id)
+	form.append('T', anonimity)
+	return fetch('http://www.gatherproxy.com/proxylist/downloadproxylist/', {
+		method: 'POST',
+		body: form,
+		headers: form.getHeaders()
+	}).then(res => res.text())
+}
+
 function getProxyListId(fetch, anonimity) {
 	log('Getting id for anonimity %s', anonimity)
 	const form = new FormData()
