@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 
-const ANONIMITY_LEVELS = ['transparent', 'anonymous']
+const ANONIMITY_LEVELS = ['transparent', 'anonymous', 'elite']
 
 export default function scrap(types) {
 	return fetch(
