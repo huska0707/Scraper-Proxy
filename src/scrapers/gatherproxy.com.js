@@ -1,7 +1,12 @@
-import debug from 'debug'
 import url from 'url'
+import nodeFetch from 'node-fetch'
+import FormData from 'form-data'
+import { Script } from 'vm'
+import cheerio from '../util/fetch-cheerio'
+import Session from '../util/fetch-session'
+import * as TempMail from '../util/temp-mail'
+import debug from 'debug'
 import fs from 'fs'
-
 const log = debug('proxy-scraper:gatherproxy.com')
 
 const CAPTCHA_REPLACE = {
@@ -95,4 +100,44 @@ function storeAccountToCache(email, password) {
 			}
 		)
 	})
+}
+
+function createAccount(fetch) {
+	const email = `${Math.random().toString(36).substring(7)}@doanart.com` //@binka.me don't receive email
+	log('Creating account with email %s', email)
+	const form = new FormData()
+	form.append('email', email)
+	return fetch('http://www.gatherproxy.com/subscribe', {
+		method: 'POST',
+		body: form,
+		headers: form.getHeaders()
+	})
+		.then(() => TempMail.poll(email))
+		.then(
+			([{ mail_text_only }]) => /<p>Password: (.*)<\/p>/.exec(mail_text_only)[1]
+		)
+		.then(password => {
+			log('Account %s with password %s created', email, password)
+			return { email, password }
+		})
+}
+
+function login(fetch, email, password) {
+	log('Logging in with email %s and password %s', email, password)
+	return fetch('http://www.gatherproxy.com/subscribe/login')
+		.then(cheerio())
+		.then($ => {
+			const captcha = $('#body > form > .label > .blue').first().text()
+
+			const form = new FormData()
+			form.append('Username', email)
+			form.append('Password', password)
+			form.append('Captcha', solveCaptcha(captcha))
+
+			return fetch('http://www.gatherproxy.com/subscribe/login', {
+				method: 'POST',
+				body: form,
+				headers: form.getHeaders()
+			})
+		})
 }
