@@ -50,7 +50,6 @@ export default function scrap() {
 	})
 }
 
-
 function getAccount(fetch) {
 	return loadAccountFromCache()
 		.then(({ email, password }) => {
@@ -78,7 +77,6 @@ function getAccount(fetch) {
 				.then(({ email, password }) => login(fetch, email, password))
 		})
 }
-
 
 function loadAccountFromCache() {
 	return new Promise((resolve, reject) => {
@@ -140,4 +138,19 @@ function login(fetch, email, password) {
 				headers: form.getHeaders()
 			})
 		})
+}
+
+function solveCaptcha(raw) {
+	const captcha = raw
+		.split(' ')
+		.map(part => part.toLowerCase())
+		.map(part => (part in CAPTCHA_REPLACE ? CAPTCHA_REPLACE[part] : part))
+
+	captcha.splice(captcha.indexOf('='), 1) // Remove the =
+
+	const c = captcha.join(' ')
+	const result = new Script(c).runInNewContext({})
+
+	log('Captcha %s (raw: %s) solved, result: %d', c, raw, result)
+	return result
 }
