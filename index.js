@@ -2,6 +2,7 @@ import os from 'os'
 import scrapers from './src/scrapers'
 import child from 'child_process'
 import path from 'path'
+import { Readable as ReadableStream } from 'stream'
 
 const TYPES = ['http', 'socks']
 const VALID_TYPES = ['socks', 'socks5', 'socks4', 'https', 'http']
@@ -21,7 +22,6 @@ export default class ProxyScraper {
         return this.scrapProxies().then(proxies => this.testProxies(timeout, proxies))
     }
 
-	
 	testProxies(timeout, proxies) {
 		log('Testing %d proxies with %d timeout', proxies.length, timeout)
 		const stream = new ReadableStream({ objectMode: true })
@@ -83,6 +83,22 @@ export default class ProxyScraper {
 				)
 			)
 			.then(() => stream)
+	}
+
+	_testProxy(proxy, worker) {
+		worker.send({
+			event: 'test',
+			data: proxy
+		})
+		return new Promise((resolve, reject) => {
+			worker.once('message', data => {
+				if (data.working) {
+					resolve(data.time)
+				} else {
+					reject(data.error)
+				}
+			})
+		})
 	}
 
 	scrapProxies() {
