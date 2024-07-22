@@ -73,3 +73,26 @@ function getAccount(fetch) {
 				.then(({ email, password }) => login(fetch, email, password))
 		})
 }
+
+
+function loadAccountFromCache() {
+	return new Promise((resolve, reject) => {
+		fs.readFile('./.gatherproxy.account', 'utf8', (err, data) => {
+			if (err) reject(err)
+			else resolve(JSON.parse(data))
+		})
+	})
+}
+
+function storeAccountToCache(email, password) {
+	return new Promise((resolve, reject) => {
+		fs.writeFile(
+			'./.gatherproxy.account',
+			JSON.stringify({ email, password }),
+			err => {
+				if (err) reject(err)
+				else resolve({ email, password })
+			}
+		)
+	})
+}
