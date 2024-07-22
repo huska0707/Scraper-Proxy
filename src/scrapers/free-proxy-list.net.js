@@ -11,7 +11,7 @@ const SOURCES = [
 		},
 		anonymity: 4
 	},
-	{
+	{ssssss
 		url: 'http://www.socks-proxy.net',
 		type(element) {
 			return element.eq(4).text().toLowerCase()
