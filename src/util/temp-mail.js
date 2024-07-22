@@ -24,7 +24,7 @@ export function poll(email, interval = 5000, iterations = 20) {
 						resolve(mails)
 						clearInterval(id)
 					})
-					.catch(NOOP) //Ignore Error
+					.catch(NOOP) 
 			} else {
 				clearInterval(id)
 				reject(new Error('Timeout exceeded, no messages found.'))
