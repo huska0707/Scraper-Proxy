@@ -154,3 +154,16 @@ function solveCaptcha(raw) {
 	log('Captcha %s (raw: %s) solved, result: %d', c, raw, result)
 	return result
 }
+
+function getProxyListId(fetch, anonimity) {
+	log('Getting id for anonimity %s', anonimity)
+	const form = new FormData()
+	form.append('Uptime', 0)
+	form.append('Type', anonimity)
+	return fetch('http://www.gatherproxy.com/proxylist/anonymityplaintext', {
+		method: 'POST',
+		body: form,
+		headers: form.getHeaders(),
+		redirect: 'manual'
+	}).then(res => url.parse(res.headers.get('location'), true).query.sid)
+}
