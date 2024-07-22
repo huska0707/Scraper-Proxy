@@ -3,8 +3,10 @@ import gatherproxy from './gatherproxy.com'
 import hidester from './hidester.com'
 import hidemyname from './hidemy.name'
 import hidemyip from './hide-my-ip.com'
+import nordvpn from './nordvpn.com'
 import multiproxy from './multiproxy.org'
 import premproxy from './premproxy.com'
+import proxydb from './proxydb.net'
 
 export default {
     'free-proxy-list.net': freeproxylist,
@@ -14,4 +16,6 @@ export default {
     'hidester.com': hidester,
     'multiproxy.org': multiproxy,
     'premproxy.com': premproxy,
+    'nordvpn.com': nordvpn,
+    'proxydb.net': proxydb,
 }
