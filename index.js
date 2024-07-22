@@ -1,5 +1,7 @@
 import os from 'os'
 import scrapers from './src/scrapers'
+import child from 'child_process'
+import path from 'path'
 
 const TYPES = ['http', 'socks']
 const VALID_TYPES = ['socks', 'socks5', 'socks4', 'https', 'http']
@@ -18,6 +20,70 @@ export default class ProxyScraper {
     getProxies(timeout) {
         return this.scrapProxies().then(proxies => this.testProxies(timeout, proxies))
     }
+
+	
+	testProxies(timeout, proxies) {
+		log('Testing %d proxies with %d timeout', proxies.length, timeout)
+		const stream = new ReadableStream({ objectMode: true })
+		const proxiesCount = proxies.length
+		const queue = proxies.slice(0) //Clone it
+		let testedProxies = 0
+		stream._read = () => {
+			for (const worker of this._workers) {
+				let done = false
+				const run = () => {
+					if (queue.length > 0) {
+						const proxy = queue.pop()
+						worker
+							.get(worker =>
+								this._testProxy(
+									{
+										url: 'http://example.com/',
+										proxy: proxy.url(),
+										timeout
+									},
+									worker
+								)
+							)
+							.then(time => {
+								done = true
+								proxy.time = time
+								log('Working proxy: %o', proxy)
+								stream.push(proxy)
+							})
+							.catch(e => {
+								if (e.type && e.type == 'missmatch')
+									log('Content missmatch %o for proxy %o', e, proxy)
+							})
+							.then(() => {
+								testedProxies++
+								if(testedProxies === proxiesCount)
+									stream.push(null)
+								stream.emit('progress', {
+									length: proxiesCount,
+									tested: testedProxies,
+									remaining: proxiesCount - testedProxies,
+									percentage: (testedProxies / proxiesCount) * 100,
+									source: proxy.source
+								})
+								if (!done) run()
+							})
+					}
+				}
+				run()
+			}
+		}
+		return fetch('http://example.com/')
+			.then(res => res.text())
+			.then(page =>
+				Promise.all(
+					this._workers.map(worker =>
+						worker.get(worker => this._setPage(page, worker))
+					)
+				)
+			)
+			.then(() => stream)
+	}
 
 	scrapProxies() {
 		const proxies = []
