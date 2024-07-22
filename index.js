@@ -1,10 +1,11 @@
-import os from 'os'
 import scrapers from './src/scrapers'
 import Lock from './src/util/promise-lock'
 import child from 'child_process'
+import fetch from 'node-fetch'
 import path from 'path'
 import { Readable as ReadableStream } from 'stream'
 import debug from 'debug'
+import os from 'os'
 
 const log = debug('proxy-scraper')
 
@@ -22,9 +23,11 @@ export default class ProxyScraper {
 		}
 	}
 
-    getProxies(timeout) {
-        return this.scrapProxies().then(proxies => this.testProxies(timeout, proxies))
-    }
+	getProxies(timeout) {
+		return this.scrapProxies().then(proxies =>
+			this.testProxies(timeout, proxies)
+		)
+	}
 
 	testProxies(timeout, proxies) {
 		log('Testing %d proxies with %d timeout', proxies.length, timeout)
@@ -105,6 +108,13 @@ export default class ProxyScraper {
 		})
 	}
 
+	_setPage(page, worker) {
+		worker.send({
+			event: 'page',
+			data: page
+		})
+	}
+
 	scrapProxies() {
 		const proxies = []
 		log('Scrapers: %o', Object.keys(ProxyScraper.scrapers))
@@ -129,6 +139,12 @@ export default class ProxyScraper {
 		)
 	}
 
+	stop() {
+		for (const worker of this._workers) {
+			worker.get(worker => worker.kill())
+		}
+	}
+
 	_aggregateProxy(proxy, source) {
 		const aproxy = {
 			source,
@@ -144,12 +160,6 @@ export default class ProxyScraper {
 					...aproxy,
 					type
 				}))
-	}
-
-	stop() {
-		for (const worker of this._workers) {
-			worker.get(worker => worker.kill())
-		}
 	}
 }
 
