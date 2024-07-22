@@ -1,8 +1,12 @@
 import os from 'os'
 import scrapers from './src/scrapers'
+import Lock from './src/util/promise-lock'
 import child from 'child_process'
 import path from 'path'
 import { Readable as ReadableStream } from 'stream'
+import debug from 'debug'
+
+const log = debug('proxy-scraper')
 
 const TYPES = ['http', 'socks']
 const VALID_TYPES = ['socks', 'socks5', 'socks4', 'https', 'http']
