@@ -7,6 +7,8 @@ import nordvpn from './nordvpn.com'
 import multiproxy from './multiproxy.org'
 import premproxy from './premproxy.com'
 import proxydb from './proxydb.net'
+import proxy24 from './proxy24.blogspot.fr'
+import spys from './spys.me'
 
 export default {
     'free-proxy-list.net': freeproxylist,
@@ -17,5 +19,7 @@ export default {
     'multiproxy.org': multiproxy,
     'premproxy.com': premproxy,
     'nordvpn.com': nordvpn,
+    'proxy24.blogspot.fr': proxy24,
     'proxydb.net': proxydb,
+    'spys.me': spys
 }
